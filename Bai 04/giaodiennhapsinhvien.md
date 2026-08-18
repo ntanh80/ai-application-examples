@@ -30,9 +30,9 @@ Tạo nút "Lưu thông tin" bằng `st.button`.
 
 Khi người dùng nhấn nút:
 
-1. Kiểm tra Mã sinh viên và Họ tên không được để trống.
+1. Kc để trống.
 2. Kiểm tra điểm trung bình nằm trong khoảng từ 0 đến 10.
-3. Nếu dữ liệu hợp lệ, hiển thị thông báo lưu thành công bằng `st.success`.
+3. Nếu dữ liệu hợp lệ, hiển thị iểm tra Mã sinh viên và Họ tên không đượthông báo lưu thành công bằng `st.success`.
 4. Hiển thị lại toàn bộ thông tin sinh viên vừa nhập dưới dạng bảng hoặc `st.write`.
 
 ## [Constraints]
