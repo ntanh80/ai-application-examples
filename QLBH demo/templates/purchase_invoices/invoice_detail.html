@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Hóa đơn nhập: {{ invoice.invoice_number }} | QLBH Pro{% endblock %}
+{% block page_title %}<i class="fas fa-file-import me-2"></i> Chi tiết Hóa đơn Nhập{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card overflow-hidden">
+            <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="m-0 fw-bold">Hóa đơn Nhập #{{ invoice.invoice_number }}</h5>
+                <div class="d-flex gap-2">
+                    <button onclick="window.print()" class="btn btn-light btn-sm fw-bold">
+                        <i class="fas fa-print me-1"></i> In
+                    </button>
+                    <a href="{% url 'purchase_invoice_list' %}" class="btn btn-light btn-sm fw-bold">
+                        <i class="fas fa-arrow-left me-1"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <label class="small text-muted text-uppercase fw-bold d-block">Nhà cung cấp</label>
+                        <h5 class="fw-bold m-0">{{ invoice.supplier.company_name }}</h5>
+                        <p class="text-muted small mb-0">{{ invoice.supplier.contact_name }} | {{ invoice.supplier.phone }}</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <label class="small text-muted text-uppercase fw-bold d-block">Thời gian nhập</label>
+                        <p class="m-0 fw-bold">{{ invoice.date|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-3" style="width: 50px;">STT</th>
+                                <th>Sản phẩm</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá nhập</th>
+                                <th class="text-end pe-3">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in invoice.details.all %}
+                            <tr>
+                                <td class="ps-3 text-muted">{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="fw-bold">{{ detail.product.product_name }}</div>
+                                    <div class="small text-muted">{{ detail.product.product_code }}</div>
+                                </td>
+                                <td class="text-center fw-bold">{{ detail.quantity }}</td>
+                                <td class="text-end">{{ detail.unit_price|floatformat:0|intcomma }} đ</td>
+                                <td class="text-end pe-3 fw-bold">{{ detail.amount|floatformat:0|intcomma }} đ</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row justify-content-end mt-4">
+                    <div class="col-md-5">
+                        <div class="d-flex justify-content-between border-top pt-3">
+                            <h5 class="fw-bold text-danger">Tổng cộng:</h5>
+                            <h5 class="fw-bold text-danger">{{ invoice.total_amount|floatformat:0|intcomma }} đ</h5>
+                        </div>
+                    </div>
+                </div>
+
+                {% if invoice.note %}
+                <div class="mt-4 p-3 bg-light rounded-4">
+                    <label class="small text-muted text-uppercase fw-bold d-block mb-2">Ghi chú</label>
+                    <p class="m-0">{{ invoice.note }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

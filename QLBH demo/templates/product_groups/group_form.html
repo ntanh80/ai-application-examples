@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Sửa{% else %}Thêm{% endif %} nhóm sản phẩm - QLBH Admin{% endblock %}
+{% block page_title %}Quản lý nhóm sản phẩm{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold">{% if object %}Cập nhật nhóm sản phẩm{% else %}Thêm nhóm sản phẩm mới{% endif %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'group_list' %}" class="btn btn-light border">Quay lại</a>
+                        <button type="submit" class="btn btn-primary px-4">Lưu thông tin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

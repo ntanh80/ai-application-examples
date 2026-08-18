@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Sửa{% else %}Thêm{% endif %} Nhà cung cấp | QLBH Pro{% endblock %}
+{% block page_title %}<i class="fas fa-truck-loading me-2"></i> {% if object %}Cập nhật{% else %}Thêm mới{% endif %} Nhà cung cấp{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="m-0 fw-bold">Thông tin nhà cung cấp</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}
+                        <div class="{% if field.name == 'address' %}col-12{% else %}col-md-6{% endif %}">
+                            <label class="form-label fw-bold small text-muted text-uppercase">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                        <a href="{% url 'supplier_list' %}" class="btn btn-light me-2 fw-bold">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">Lưu thông tin</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    input, textarea, select {
+        border-radius: 10px !important;
+        border: 1px solid #e0e0e0 !important;
+        padding: 10px 15px !important;
+    }
+    input:focus, textarea:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.1) !important;
+    }
+</style>
+{% endblock %}

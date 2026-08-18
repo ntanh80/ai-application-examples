@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Danh mục Sản phẩm | QLBH Pro{% endblock %}
+{% block page_title %}<i class="fas fa-boxes me-2"></i> Quản lý Kho hàng{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 fw-bold">Danh sách sản phẩm</h5>
+        <div class="btn-group">
+            <a href="{% url 'product_export' %}" class="btn btn-light btn-sm fw-bold border me-2">
+                <i class="fas fa-file-excel me-1 text-success"></i> Xuất Excel
+            </a>
+            <a href="{% url 'product_add' %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i> Thêm sản phẩm
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="px-3 mb-3">
+            <form method="get" class="row g-2">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="search" class="form-control border-start-0" placeholder="Tìm mã hoặc tên..." value="{{ request.GET.search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="group" class="form-select">
+                        <option value="">-- Tất cả nhóm --</option>
+                        {% for g in groups %}
+                        <option value="{{ g.id }}" {% if selected_group == g.id|stringformat:"s" %}selected{% endif %}>{{ g.group_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-light w-100 fw-bold">Lọc</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-3" style="width: 60px;">Hình</th>
+                        <th>Thông tin sản phẩm</th>
+                        <th>Nhóm</th>
+                        <th>Giá bán</th>
+                        <th>Tồn kho</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in products %}
+                    <tr {% if p.quantity <= p.min_stock_level %}class="table-warning bg-opacity-10"{% endif %}>
+                        <td class="ps-3">
+                            {% if p.image %}
+                            <img src="{{ p.image.url }}" alt="{{ p.product_name }}" style="width: 48px; height: 48px; object-fit: cover;" class="rounded-3 shadow-sm border">
+                            {% else %}
+                            <div class="bg-light text-muted d-flex align-items-center justify-content-center rounded-3 border" style="width: 48px; height: 48px;">
+                                <i class="fas fa-box-open opacity-25"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-bold">{{ p.product_name }}</div>
+                            <div class="small text-muted">{{ p.product_code }}</div>
+                        </td>
+                        <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ p.product_group.group_name }}</span></td>
+                        <td>
+                            <div class="fw-bold text-primary">{{ p.price|floatformat:0|intcomma }} đ</div>
+                            <div class="small text-muted" style="font-size: 10px;">Vốn: {{ p.cost_price|floatformat:0|intcomma }} đ</div>
+                        </td>
+                        <td>
+                            <div class="fw-bold {% if p.quantity <= p.min_stock_level %}text-danger{% endif %}">
+                                {{ p.quantity }}
+                                {% if p.quantity <= p.min_stock_level %}
+                                <i class="fas fa-exclamation-triangle ms-1" title="Sắp hết hàng"></i>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'product_detail' p.pk %}" class="btn btn-sm btn-light text-info me-1" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'product_edit' p.pk %}" class="btn btn-sm btn-light text-primary me-1" title="Sửa"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'product_delete' p.pk %}" class="btn btn-sm btn-light text-danger" title="Xóa"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">Không tìm thấy sản phẩm nào</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if is_paginated %}
+    <div class="card-footer bg-transparent border-0 py-3">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center m-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.group %}&group={{ request.GET.group }}{% endif %}">Trước</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.group %}&group={{ request.GET.group }}{% endif %}">Sau</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

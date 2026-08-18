@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ view.action }} sản phẩm - SkyGate{% endblock %}
+
+{% block content %}
+<div class="container fade-in" style="max-width: 800px;">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="fw-bold">{% if object %}Sửa{% else %}Thêm{% endif %} sản phẩm</h2>
+            <p class="text-secondary">Vui lòng điền đầy đủ thông tin sản phẩm.</p>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Mã sản phẩm *</label>
+                    {{ form.product_code }}
+                    {% if form.product_code.errors %}<div class="text-danger small mt-1">{{ form.product_code.errors }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Tên sản phẩm *</label>
+                    {{ form.product_name }}
+                    {% if form.product_name.errors %}<div class="text-danger small mt-1">{{ form.product_name.errors }}</div>{% endif %}
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nhóm sản phẩm *</label>
+                    {{ form.product_group }}
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Giá (VNĐ) *</label>
+                    {{ form.price }}
+                    {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors }}</div>{% endif %}
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Số lượng *</label>
+                    {{ form.quantity }}
+                    {% if form.quantity.errors %}<div class="text-danger small mt-1">{{ form.quantity.errors }}</div>{% endif %}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Mô tả</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Ảnh sản phẩm</label>
+                    {{ form.image }}
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex justify-content-end gap-2">
+                <a href="{% url 'product_list' %}" class="btn btn-light px-4">Hủy</a>
+                <button type="submit" class="btn btn-primary px-4">Lưu lại</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 10px 15px;
+        border: 1px solid #e2e8f0;
+    }
+    textarea.form-control { height: 100px; }
+</style>
+
+<script>
+    // Add bootstrap classes to form fields
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.type !== 'checkbox' && el.type !== 'file') {
+            el.classList.add('form-control');
+            if (el.tagName === 'SELECT') el.classList.add('form-select');
+        }
+    });
+</script>
+{% endblock %}

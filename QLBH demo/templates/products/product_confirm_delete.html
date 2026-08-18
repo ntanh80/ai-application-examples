@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Xác nhận xóa sản phẩm - QLBH Admin{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0 fw-bold">Xác nhận xóa</h5>
+            </div>
+            <div class="card-body text-center py-4">
+                <i class="fas fa-exclamation-triangle text-danger fa-4x mb-3"></i>
+                <p class="lead">Bạn có chắc chắn muốn xóa sản phẩm <strong>{{ object.product_name }}</strong>?</p>
+                <p class="text-muted">Hành động này không thể hoàn tác.</p>
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'product_list' %}" class="btn btn-light border px-4 me-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-danger px-4">Xác nhận xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

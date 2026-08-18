@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}QLBH Pro{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Outfit & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --bg-color: #f8f9fe;
+            --sidebar-bg: #1e1e2d;
+            --sidebar-hover: #2b2b40;
+            --text-main: #252f40;
+            --text-muted: #67748e;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6, .fw-bold {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            color: white;
+            padding-top: 20px;
+            position: fixed;
+            width: 260px;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .sidebar-brand {
+            padding: 0 25px 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-brand i {
+            font-size: 24px;
+            color: var(--accent-color);
+            margin-right: 12px;
+        }
+
+        .sidebar nav a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin: 4px 15px;
+            border-radius: 10px;
+        }
+
+        .sidebar nav a i {
+            width: 24px;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: var(--sidebar-hover);
+            color: white;
+        }
+
+        .sidebar nav a.active {
+            background: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            transition: all 0.3s;
+        }
+
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 15px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        /* Premium Cards */
+        .card {
+            border: none;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            border: none;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                margin-left: -260px;
+            }
+            .sidebar.active {
+                margin-left: 0;
+            }
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-rocket"></i>
+            <h4 class="m-0 fw-bold">QLBH PRO</h4>
+        </div>
+        <nav>
+            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-grid-2"></i> Dashboard
+            </a>
+            
+            <div class="px-4 py-2 small text-uppercase fw-bold text-muted" style="font-size: 11px;">Đối tác</div>
+            <a href="{% url 'customer_list' %}" class="{% if 'customer' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-user-friends"></i> Khách hàng
+            </a>
+            <a href="{% url 'supplier_list' %}" class="{% if 'supplier' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-truck-loading"></i> Nhà cung cấp
+            </a>
+
+            <div class="px-4 py-2 small text-uppercase fw-bold text-muted" style="font-size: 11px;">Kho hàng</div>
+            <a href="{% url 'group_list' %}" class="{% if 'group' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-tags"></i> Nhóm sản phẩm
+            </a>
+            <a href="{% url 'product_list' %}" class="{% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-box-open"></i> Sản phẩm
+            </a>
+
+            <div class="px-4 py-2 small text-uppercase fw-bold text-muted" style="font-size: 11px;">Giao dịch</div>
+            <a href="{% url 'purchase_invoice_list' %}" class="{% if 'purchase_invoice' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-file-import"></i> Nhập hàng
+            </a>
+            <a href="{% url 'sales_invoice_list' %}" class="{% if 'sales_invoice' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-file-export"></i> Bán hàng
+            </a>
+            <a href="{% url 'pos' %}" class="{% if request.resolver_match.url_name == 'pos' %}active{% endif %}">
+                <i class="fas fa-cash-register"></i> Bán tại quầy (POS)
+            </a>
+
+            {% if user.is_admin %}
+            <div class="px-4 py-2 small text-uppercase fw-bold text-muted" style="font-size: 11px;">Hệ thống</div>
+            <a href="{% url 'user_list' %}" class="{% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-user-shield"></i> Tài khoản
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="header">
+            <h5 class="m-0 fw-bold text-primary">
+                {% block page_title %}<i class="fas fa-chart-line me-2"></i> Dashboard{% endblock %}
+            </h5>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-light shadow-sm dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+                        <div class="bg-primary rounded-circle text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 14px;">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <span class="d-none d-md-block">{{ user.full_name|default:user.username }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                        <li><a class="dropdown-item py-2" href="#"><i class="fas fa-user-circle me-2"></i> Hồ sơ cá nhân</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Hiển thị thông báo bằng SweetAlert2
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    icon: '{{ message.tags }}' === 'error' ? 'error' : ('{{ message.tags }}' === 'success' ? 'success' : 'info'),
+                    title: 'Thông báo',
+                    text: '{{ message }}',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

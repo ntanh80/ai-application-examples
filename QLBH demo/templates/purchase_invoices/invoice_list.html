@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Danh sách Hóa đơn Nhập | QLBH Pro{% endblock %}
+{% block page_title %}<i class="fas fa-file-import me-2"></i> Quản lý Nhập hàng{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 fw-bold">Danh sách hóa đơn nhập</h5>
+        <a href="{% url 'purchase_invoice_add' %}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Tạo hóa đơn mới
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="px-3 mb-3">
+            <form method="get" class="row g-2">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="search" class="form-control border-start-0" placeholder="Số hóa đơn hoặc nhà cung cấp..." value="{{ request.GET.search }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-light w-100 fw-bold">Lọc</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-3">Số HĐ</th>
+                        <th>Nhà cung cấp</th>
+                        <th>Ngày nhập</th>
+                        <th class="text-end pe-3">Tổng tiền</th>
+                        <th class="text-end pe-3">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in invoices %}
+                    <tr>
+                        <td class="ps-3"><div class="fw-bold">{{ inv.invoice_number }}</div></td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ inv.supplier.company_name }}</div>
+                            <div class="small text-muted">{{ inv.supplier.contact_name }}</div>
+                        </td>
+                        <td class="small">{{ inv.date|date:"d/m/Y H:i" }}</td>
+                        <td class="text-end pe-3 fw-bold text-danger">{{ inv.total_amount|floatformat:0|intcomma }} đ</td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'purchase_invoice_detail' inv.pk %}" class="btn btn-sm btn-light text-info me-1" title="Chi tiết"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'purchase_invoice_delete' inv.pk %}" class="btn btn-sm btn-light text-danger" title="Xóa"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">Chưa có hóa đơn nhập nào</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% if is_paginated %}
+    <div class="card-footer bg-transparent border-0 py-3">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center m-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Trước</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Sau</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

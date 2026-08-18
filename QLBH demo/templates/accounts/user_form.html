@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container fade-in" style="max-width: 800px;">
+    <h2 class="fw-bold mb-4">{% if object %}Sửa{% else %}Thêm{% endif %} người dùng</h2>
+    <div class="glass-card">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Username *</label>
+                    {{ form.username }}
+                </div>
+                {% if not object %}
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Password *</label>
+                    {{ form.password }}
+                </div>
+                {% endif %}
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Họ và tên</label>
+                    {{ form.full_name }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Email</label>
+                    {{ form.email }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Vai trò</label>
+                    {{ form.role }}
+                </div>
+                <div class="col-md-6 d-flex align-items-center pt-4">
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">Hoạt động</label>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="{% url 'user_list' %}" class="btn btn-light">Hủy</a>
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    document.querySelectorAll('input, select').forEach(el => {
+        if (el.type !== 'checkbox') el.classList.add('form-control');
+        if (el.tagName === 'SELECT') el.classList.add('form-select');
+    });
+</script>
+{% endblock %}

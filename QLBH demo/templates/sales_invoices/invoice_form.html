@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Tạo hóa đơn bán | QLBH Pro{% endblock %}
+{% block page_title %}<i class="fas fa-file-invoice-dollar me-2"></i> Tạo Hóa đơn Bán mới{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-11">
+        <div class="card shadow-sm">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="m-0 fw-bold">Thông tin hóa đơn</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Số hóa đơn</label>
+                            {{ form.invoice_number }}
+                            {% if form.invoice_number.errors %}<div class="text-danger small">{{ form.invoice_number.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Khách hàng</label>
+                            {{ form.customer }}
+                            {% if form.customer.errors %}<div class="text-danger small">{{ form.customer.errors }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Chiết khấu</label>
+                            {{ form.discount }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Thuế (VAT)</label>
+                            {{ form.tax }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small text-muted text-uppercase fw-bold">Ghi chú</label>
+                            {{ form.note }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mt-4 mb-3 d-flex align-items-center">
+                        <i class="fas fa-list me-2 text-primary"></i> Chi tiết sản phẩm
+                    </h5>
+                    {{ details.management_form }}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle border rounded">
+                            <thead class="bg-light text-muted small text-uppercase">
+                                <tr>
+                                    <th style="width: 40%;" class="ps-3">Sản phẩm</th>
+                                    <th style="width: 20%;">Số lượng</th>
+                                    <th style="width: 25%;">Đơn giá bán</th>
+                                    <th style="width: 15%;" class="text-center pe-3">Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detail_form in details %}
+                                <tr class="formset-row">
+                                    <td class="ps-3">
+                                        {{ detail_form.product }}
+                                        {% if detail_form.product.errors %}<div class="text-danger small">{{ detail_form.product.errors }}</div>{% endif %}
+                                        {% for hidden in detail_form.hidden_fields %}{{ hidden }}{% endfor %}
+                                    </td>
+                                    <td>
+                                        {{ detail_form.quantity }}
+                                        {% if detail_form.quantity.errors %}<div class="text-danger small">{{ detail_form.quantity.errors }}</div>{% endif %}
+                                    </td>
+                                    <td>
+                                        {{ detail_form.unit_price }}
+                                        {% if detail_form.unit_price.errors %}<div class="text-danger small">{{ detail_form.unit_price.errors }}</div>{% endif %}
+                                    </td>
+                                    <td class="text-center pe-3">
+                                        <div class="form-check d-inline-block">
+                                            {{ detail_form.DELETE }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-between">
+                        <a href="{% url 'sales_invoice_list' %}" class="btn btn-light fw-bold">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-primary px-5 fw-bold">Hoàn tất & Lưu hóa đơn</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 10px !important;
+        border: 1px solid #e0e0e0 !important;
+        padding: 10px 15px !important;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.1) !important;
+    }
+    .table th {
+        font-weight: 700;
+        font-size: 11px;
+    }
+</style>
+{% endblock %}

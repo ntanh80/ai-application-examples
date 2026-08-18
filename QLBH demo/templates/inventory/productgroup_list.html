@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Nhóm sản phẩm - SkyGate{% endblock %}
+
+{% block content %}
+<div class="container-fluid fade-in">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="fw-bold">Nhóm sản phẩm</h2>
+            <p class="text-secondary">Phân loại sản phẩm theo danh mục.</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'productgroup_add' %}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-plus-lg me-1"></i> Thêm nhóm
+            </a>
+        </div>
+    </div>
+
+    <div class="glass-card p-0 overflow-hidden">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Mã nhóm</th>
+                    <th>Tên nhóm</th>
+                    <th>Mô tả</th>
+                    <th>Số lượng SP</th>
+                    <th class="text-end pe-4">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                <tr>
+                    <td class="ps-4 fw-bold text-primary">{{ group.group_code }}</td>
+                    <td class="fw-semibold">{{ group.group_name }}</td>
+                    <td class="text-secondary small">{{ group.description|truncatechars:50 }}</td>
+                    <td>
+                        <span class="badge rounded-pill bg-info text-dark">{{ group.products.count }}</span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <div class="btn-group">
+                            <a href="{% url 'productgroup_edit' group.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'productgroup_delete' group.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-secondary">Chưa có nhóm sản phẩm nào.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

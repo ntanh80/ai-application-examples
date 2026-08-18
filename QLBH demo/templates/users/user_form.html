@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Sửa{% else %}Thêm{% endif %} Nhân viên | QLBH Pro{% endblock %}
+{% block page_title %}<i class="fas fa-user-cog me-2"></i> {% if object %}Cập nhật{% else %}Thêm mới{% endif %} Nhân viên{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-transparent border-0 py-3">
+                <h5 class="m-0 fw-bold">Thông tin nhân sự</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted text-uppercase">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                            {% endif %}
+                            {% if field.help_text %}
+                                <div class="form-text small opacity-75">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                        <a href="{% url 'user_list' %}" class="btn btn-light me-2 fw-bold">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">Lưu nhân sự</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    input, select {
+        border-radius: 10px !important;
+        border: 1px solid #e0e0e0 !important;
+        padding: 10px 15px !important;
+    }
+    input:focus, select:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.1) !important;
+    }
+</style>
+{% endblock %}

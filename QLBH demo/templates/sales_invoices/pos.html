@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Bán hàng nhanh (POS) | QLBH Pro{% endblock %}
+{% block page_title %}<i class="fas fa-cash-register me-2"></i> Hệ thống Bán lẻ (POS){% endblock %}
+
+{% block extra_css %}
+<style>
+    .pos-container {
+        height: calc(100vh - 160px);
+        display: flex;
+        gap: 20px;
+    }
+    .product-grid {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    .cart-panel {
+        width: 400px;
+        background: white;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .product-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid #eee;
+    }
+    .product-card:hover {
+        border-color: var(--primary-color);
+        transform: scale(1.02);
+    }
+    .cart-items {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+    }
+    .cart-footer {
+        padding: 20px;
+        border-top: 1px solid #eee;
+        background: #f8f9fe;
+        border-radius: 0 0 15px 15px;
+    }
+    .qty-input {
+        width: 60px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pos-container">
+    <!-- Product Selection -->
+    <div class="product-grid">
+        <div class="card border-0 shadow-none bg-transparent">
+            <div class="card-body p-0">
+                <div class="input-group mb-4 shadow-sm rounded-4 overflow-hidden">
+                    <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="productSearch" class="form-control border-0 py-3" placeholder="Tìm tên sản phẩm hoặc mã vạch...">
+                </div>
+                
+                <div class="row g-3" id="productList">
+                    {% for p in products %}
+                    <div class="col-md-4 col-lg-3 product-item" data-id="{{ p.id }}" data-name="{{ p.product_name }}" data-price="{{ p.price }}" data-code="{{ p.product_code }}">
+                        <div class="card product-card h-100">
+                            {% if p.image %}
+                            <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.product_name }}" style="height: 120px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                <i class="fas fa-box-open fa-2x opacity-25"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body p-2">
+                                <div class="fw-bold small text-truncate">{{ p.product_name }}</div>
+                                <div class="text-primary fw-bold">{{ p.price|floatformat:0|intcomma }} đ</div>
+                                <div class="small text-muted">Tồn: {{ p.quantity }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart / Checkout -->
+    <div class="cart-panel">
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="m-0 fw-bold"><i class="fas fa-shopping-basket me-2 text-primary"></i> Giỏ hàng</h6>
+            <button class="btn btn-sm btn-light text-danger" id="clearCart"><i class="fas fa-trash"></i></button>
+        </div>
+        
+        <div class="p-3 bg-light border-bottom">
+            <select class="form-select border-0 shadow-none" id="customerSelect">
+                <option value="">-- Chọn khách hàng --</option>
+                {% for c in customers %}
+                <option value="{{ c.id }}">{{ c.full_name }} ({{ c.phone }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="cart-items" id="cartItems">
+            <div class="text-center py-5 text-muted small" id="emptyCartMsg">
+                <i class="fas fa-shopping-cart fa-3x mb-3 opacity-25"></i>
+                <p>Chưa có sản phẩm nào</p>
+            </div>
+            <!-- Cart items added here via JS -->
+        </div>
+
+        <div class="cart-footer">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Tổng cộng</span>
+                <span class="fw-bold" id="cartTotal">0 đ</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Giảm giá</span>
+                <input type="number" class="form-control form-control-sm text-end" id="cartDiscount" value="0" style="width: 100px;">
+            </div>
+            <div class="d-flex justify-content-between border-top pt-3 mb-4">
+                <h5 class="fw-bold">Thanh toán</h5>
+                <h5 class="fw-bold text-primary" id="cartFinal">0 đ</h5>
+            </div>
+            <button class="btn btn-primary w-100 py-3 fw-bold" id="checkoutBtn">
+                XÁC NHẬN THANH TOÁN
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- POS Form (Hidden) -->
+<form id="posForm" method="post" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="customer" id="formCustomer">
+    <input type="hidden" name="discount" id="formDiscount">
+    <input type="hidden" name="cart_data" id="formCartData">
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let cart = [];
+    
+    // Search Products
+    document.getElementById('productSearch').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        document.querySelectorAll('.product-item').forEach(item => {
+            const name = item.getAttribute('data-name').toLowerCase();
+            const code = item.getAttribute('data-code').toLowerCase();
+            if (name.includes(term) || code.includes(term)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Add to Cart
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const item = this.parentElement;
+            const id = item.getAttribute('data-id');
+            const name = item.getAttribute('data-name');
+            const price = parseFloat(item.getAttribute('data-price'));
+            
+            const existing = cart.find(c => c.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ id, name, price, qty: 1 });
+            }
+            renderCart();
+        });
+    });
+
+    function renderCart() {
+        const container = document.getElementById('cartItems');
+        const emptyMsg = document.getElementById('emptyCartMsg');
+        
+        if (cart.length === 0) {
+            emptyMsg.style.display = 'block';
+            container.querySelectorAll('.cart-item-row').forEach(e => e.remove());
+        } else {
+            emptyMsg.style.display = 'none';
+            container.querySelectorAll('.cart-item-row').forEach(e => e.remove());
+            
+            cart.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'cart-item-row d-flex justify-content-between align-items-center mb-3 p-2 bg-white rounded shadow-sm';
+                div.innerHTML = `
+                    <div style="flex: 1;">
+                        <div class="fw-bold small text-truncate" style="max-width: 150px;">${item.name}</div>
+                        <div class="small text-primary">${new Intl.NumberFormat().format(item.price)} đ</div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-sm btn-light qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                        <input type="text" class="form-control form-control-sm qty-input mx-1" value="${item.qty}" readonly>
+                        <button class="btn btn-sm btn-light qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                        <button class="btn btn-sm text-danger ms-2" onclick="removeItem(${index})"><i class="fas fa-times"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        calculateTotal();
+    }
+
+    window.updateQty = function(index, delta) {
+        cart[index].qty += delta;
+        if (cart[index].qty <= 0) cart.splice(index, 1);
+        renderCart();
+    };
+
+    window.removeItem = function(index) {
+        cart.splice(index, 1);
+        renderCart();
+    };
+
+    document.getElementById('clearCart').addEventListener('click', () => {
+        cart = [];
+        renderCart();
+    });
+
+    function calculateTotal() {
+        let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        let discount = parseFloat(document.getElementById('cartDiscount').value) || 0;
+        let final = total - discount;
+        
+        document.getElementById('cartTotal').innerText = new Intl.NumberFormat().format(total) + ' đ';
+        document.getElementById('cartFinal').innerText = new Intl.NumberFormat().format(final) + ' đ';
+    }
+
+    document.getElementById('cartDiscount').addEventListener('input', calculateTotal);
+
+    // Checkout
+    document.getElementById('checkoutBtn').addEventListener('click', function() {
+        if (cart.length === 0) {
+            Swal.fire('Lỗi', 'Vui lòng chọn sản phẩm!', 'error');
+            return;
+        }
+        const customerId = document.getElementById('customerSelect').value;
+        if (!customerId) {
+            Swal.fire('Lỗi', 'Vui lòng chọn khách hàng!', 'error');
+            return;
+        }
+
+        document.getElementById('formCustomer').value = customerId;
+        document.getElementById('formDiscount').value = document.getElementById('cartDiscount').value;
+        document.getElementById('formCartData').value = JSON.stringify(cart);
+        
+        Swal.fire({
+            title: 'Xác nhận thanh toán?',
+            text: "Hóa đơn sẽ được tạo và cập nhật tồn kho.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4361ee',
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('posForm').submit();
+            }
+        });
+    });
+</script>
+{% endblock %}
